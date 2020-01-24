@@ -871,29 +871,29 @@ int LRprocessReads(VcfRecord & variant, VcfFileIn & vcfS,FaiIndex & faiI,
 
 
 // Open a bam file or a set of bam files if the filename does not end with .bam
-int parseBamFileName( CharString& bfN, vector< BamIndex<Bai>>& bamIndexV, vector< BamFileIn*>& bamStreamV )
+int parseBamFileName( CharString& bfN, vector< BamIndex<Bai>>& bamIndexV, vector<std::unique_ptr<BamFileIn> >& bamStreamV )
 {
   std::string bfNs( toCString(bfN));
   int bamStrLoc = bfNs.find(".bam" );  // ACHTUNG: This is not the best method, checks whether the first occurence of the string ".bam" in the filename is in last for letters of the name, code crashes for file names such as file.bamfile.bam
   if( bamStrLoc == (int) (length( bfN ) - 4) ){
     BamIndex<Bai> bamIndex;
-    BamFileIn* bamStream = new BamFileIn;
-    if (initializeBam(toCString(bfN), bamIndex, (*bamStream)) != 0)
+    std::unique_ptr<BamFileIn> bamStream = std::unique_ptr<BamFileIn>(new BamFileIn);
+    if (initializeBam(toCString(bfN), bamIndex, *(bamStream.get())) != 0)
       return 7;
     bamIndexV.push_back( bamIndex );
-    bamStreamV.push_back( bamStream );
+    bamStreamV.push_back( std::move(bamStream) );
   }else{
     ifstream fS;
     fS.open( toCString(bfN) );
     string bf;
     while( fS >> bf ){
       BamIndex<Bai> bamIndex;
-      BamFileIn* bamStream = new BamFileIn;
+      std::unique_ptr<BamFileIn> bamStream = std::unique_ptr<BamFileIn>(new BamFileIn);
       char* bfc = (char*) bf.c_str(); 
       if (initializeBam(bfc, bamIndex, (*bamStream)) != 0)
 	return 7;
       bamIndexV.push_back( bamIndex );
-      bamStreamV.push_back( bamStream );
+      bamStreamV.push_back( std::move(bamStream) );
     }
   }
   return 0;
@@ -963,8 +963,8 @@ int main(int argc, char const ** argv)
   omp_set_num_threads(num_threads);     
   vector< vector< BamIndex<Bai>>>  bamIndexHandles;
   vector< vector< BamIndex<Bai>>>  bamIndex2Handles;
-  std::vector< std::vector< BamFileIn*>> bamHandles;     
-  std::vector< std::vector< BamFileIn* >> bam2Handles;     
+  std::vector< std::vector< std::unique_ptr<BamFileIn> > > bamHandles;     
+  std::vector< std::vector< std::unique_ptr<BamFileIn> > > bam2Handles;     
   std::vector< FaiIndex> faIndexHandles;     
   bamHandles.resize(num_threads);     
   bam2Handles.resize(num_threads);     
