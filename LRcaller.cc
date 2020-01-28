@@ -88,7 +88,7 @@ int parseLRCArguments( int argc, char const ** argv, TOptions & O ){
   addArgument(parser, ArgParseArgument(ArgParseArgument::STRING, "BAMFILE bam file/file of bam files"));
   addArgument(parser, ArgParseArgument(ArgParseArgument::STRING, "VCF_FILE_IN - input vcf file"));
   addArgument(parser, ArgParseArgument(ArgParseArgument::STRING, "VCF_FILE_OUT - genotyped vcf file"));
-  addOption(parser, ArgParseOption("fa", "fa", "Fasta file ", ArgParseArgument::STRING, "FA"));
+  addOption(parser, ArgParseOption("fa", "fa", "Fastafile", ArgParseArgument::STRING, "FA"));
   addOption(parser, ArgParseOption("b2", "bam2", "Second bam file/file of bam files, use if you want to use multiple basecallings/mappings for the same reads", ArgParseArgument::STRING, "b2"));
  
   addOption(parser, ArgParseOption("a", "aligner", "Aligner used bwa/minimap/seqan (default seqan). (Using bwa or minimap requires programs to be in path)", ArgParseArgument::STRING, "ALIGNER"));
@@ -156,6 +156,9 @@ int parseLRCArguments( int argc, char const ** argv, TOptions & O ){
 
   if (isSet(parser, "overlap_bits"))
     getOptionValue(O.overlapBits, parser, "overlap_bits");
+
+  if (isSet(parser, "fa"))
+    getOptionValue(O.faFile, parser, "fa");
 
   if (isSet(parser, "number_of_threads"))
     getOptionValue(O.nThreads, parser, "number_of_threads");
@@ -664,7 +667,16 @@ int readBamRegion(BamIndex< Bai>& baiI, BamFileIn& bamS, CharString& chrom, VcfR
 	if( O.verbose ) cerr << "SoftClip removed RightBreakpoint " << record.qName << " " << O.genotypeRightBreakpoint << " " << record.cigar[length(record.cigar)-1].count << " " << O.maxSoftClipped << endl;
       }
     }
-    if( (not softClipRemove) and (not hasFlagDuplicate( record )) and (not hasFlagQCNoPass( record )) ){
+    bool hardClipped = false;
+    CharString cigarOperationL = record.cigar[0].operation;
+    string cigarOperationStrL = toCString(cigarOperationL);
+    CharString cigarOperationR = record.cigar[length(record.cigar)-1].operation;
+    string cigarOperationStrR = toCString(cigarOperationR);
+    if( (cigarOperationStrL == "H") or (cigarOperationStrL == "H") ){
+      hardClipped = true;
+      if( O.verbose ) cout << "Read " << record.qName << " is hardclipped at " << record.beginPos << endl;
+    }
+    if( (not softClipRemove) and (not hasFlagDuplicate( record )) and (not hasFlagQCNoPass( record )) and (not hardClipped)){
       bars[record.qName] = record;
       vaiMap[record.qName] = vai;
     }

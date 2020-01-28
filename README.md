@@ -5,7 +5,7 @@ Genotypes variants using long reads in bam file/file of bam files.
 ### Get a static binary
 Get the LRcaller binary with
 ```sh
-wget https://github.com/DecodeGenetics/LRcaller/releases/download/v0.1/LRcaller
+wget https://github.com/DecodeGenetics/LRcaller/releases/download/v0.1.2/LRcaller
 chmod a+x LRcaller
 ```
 
