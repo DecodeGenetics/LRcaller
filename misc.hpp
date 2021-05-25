@@ -13,8 +13,7 @@ std::string to_str(in_t && in)
 }
 
 template <typename in_t>
-    requires std::constructible_from<std::string, in_t>
-std::string to_str(in_t && in)
+requires std::constructible_from<std::string, in_t> std::string to_str(in_t && in)
 {
     return std::string(std::forward<in_t>(in));
 }

@@ -47,19 +47,19 @@ void mainProgram(LRCOptions & O)
     open(vcfOut, vcfStream, seqan::Vcf());
     writeHeader(vcfOut, header);
 
-//     bool useBam2 = false;
-//     if (O.bam2 != "")
-//     {
-//         useBam2 = true;
-//         if (O.verbose)
-//             std::cerr << "Using bam2 " << O.bam2 << '\n';
-//     }
+    //     bool useBam2 = false;
+    //     if (O.bam2 != "")
+    //     {
+    //         useBam2 = true;
+    //         if (O.verbose)
+    //             std::cerr << "Using bam2 " << O.bam2 << '\n';
+    //     }
 
     if (O.cacheDataInTmp)
     {
         O.cacheDir         = std::filesystem::temp_directory_path() / "tmp-lrcaller-XXXXXX";
         std::string buffer = O.cacheDir.string();
-        char * r = mkdtemp(buffer.data());
+        char *      r      = mkdtemp(buffer.data());
         if (r == nullptr)
         {
             std::cerr << "ERROR: Could not create temporary directory.\n";
@@ -121,11 +121,11 @@ void mainProgram(LRCOptions & O)
     // last chunk
     chunks.emplace_back(vcfRecords.begin() + chunk_first, vcfRecords.begin() + vcfRecords.size());
 
-    #pragma omp parallel for
+#pragma omp parallel for
     for (size_t i = 0; i < chunks.size(); ++i)
     {
-        std::span<seqan::VcfRecord> chunk = chunks[i];
-        thread_cache_t & thread_cache = per_thread[omp_get_thread_num()];
+        std::span<seqan::VcfRecord> chunk        = chunks[i];
+        thread_cache_t &            thread_cache = per_thread[omp_get_thread_num()];
 
         thread_cache.bars.clear();
         thread_cache.chrom = seqan::contigNames(seqan::context(vcfIn))[chunk.begin()->rID];
