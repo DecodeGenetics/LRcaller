@@ -1,5 +1,4 @@
 #include <cstddef>
-#include <execution>
 // BEFORE EVERYTHING
 inline size_t lrcaller_bgzf_threads = 1;
 #define SEQAN_BGZF_NUM_THREADS lrcaller_bgzf_threads
