@@ -3,9 +3,11 @@ cmake_minimum_required (VERSION 3.4)
 enable_testing ()
 include (CTest)
 
+## GITHUB UNIT TESTS
 add_test (NAME small_test
           COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/small_test.sh" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
+## DECODE INTERNAL UNIT TESTS
 if(DEFINED ENV{DECODE_INTERNAL_TESTS})
     set(TESTDIR "$ENV{DECODE_INTERNAL_TESTS}/lrcaller-test")
     if (EXISTS ${TESTDIR})
@@ -22,6 +24,3 @@ if(DEFINED ENV{DECODE_INTERNAL_TESTS})
                   COMMAND ${TESTDIR}/test.sh "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" "2c")
     endif ()
 endif ()
-
-
-
