@@ -1,0 +1,27 @@
+##fileformat=VCFv4.2	 	 	 	 	 	 	 
+##FILTER=<ID=PASS,Description="All filters passed">
+##GLnexusVersion=v1.2.7-0-g0e74fc4	 	 	 	 	 	 	 
+##GLnexusConfigName=/ONT_corrected.yml	 	 	 	 	 	 	 
+##GLnexusConfigCRC32C=2143644791	 	 	 	 	 	 	 
+##GLnexusConfig={unifier_config:	{drop_filtered:	false,	min_allele_copy_number:	1,	min_AQ1:	10,	min_AQ2:
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele	Frequency	estimate	for	each	alternate	allele">
+##INFO=<ID=AQ,Number=A,Type=Integer,Description="Allele	Quality	score	reflecting	evidence	for	each	alternate">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele	count	in	genotypes">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total	number	of	alleles	in	called	genotypes">
+##FILTER=<ID=MONOALLELIC,Description="Site	represents	one	ALT	allele	in	a	region">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=RNC,Number=2,Type=Character,Description="Reason	for	No	Call	in	GT:	.	=">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate	read	depth	(reads	with	MQ=255	or	with">
+##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic	depths	for	the	ref	and	alt	alleles">
+##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype	Quality">
+##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Phred-scaled	genotype	Likelihoods">
+##contig=<ID=chr1,length=248956422>
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+chr1	2659324	chr1_2659324_G_A	G	A	14	.	AF=0.000597;AQ=14
+chr1	2662049	chr1_2662049_C_A	C	A	12	.	AF=0.024492;AQ=12
+chr1	2668121	chr1_2668121_T_C	T	C	20	.	AF=0.013142;AQ=20
+chr1	2671289	chr1_2671289_G_A	G	A	10	.	AF=0.000597;AQ=10
+chr1	2675837	chr1_2675837_C_A	C	A	12	.	AF=0.001792;AQ=12
+chr1	2678934	chr1_2678934_A_G	A	G	10	.	AF=0.000597;AQ=10
+chr1	2689225	chr1_2689225_C_T	C	T	13	.	AF=0.001195;AQ=13
+chr1	2702298	chr1_2702298_G_A	G	A	28	.	AF=0.285544;AQ=28
