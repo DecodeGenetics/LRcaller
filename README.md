@@ -1,28 +1,31 @@
 # LRcaller
-Genotypes variants using long reads in bam file/file of bam files.
+Program to estimate genotype structural variants from long read data
 
-## Getting started
-### Get a static binary
-Get the LRcaller binary with
-```sh
-wget https://github.com/DecodeGenetics/LRcaller/releases/download/v0.2/LRcaller
-chmod a+x LRcaller
-```
+## Build instructions
 
-### Compile from source
-You need:
-* C++ compiler with C++14 support
-* SeqAn v2.4
-* zlib
-* openmp
+Requirements:
 
-Make sure you have these dependencies. Then, download or clone this repository. Next, set the SEQAN_LIB variable in the Makefile to the seqan include directory and finally run
+  * CMake >= 3.4
+  * SeqAn2 (assumed to be installed in `~/devel/seqan`, adapt paths below respectively; the `-develop` branch is required!)
+  * OpenMP
+  * C++20 capable compiler (might work with older ones)
+
+Download or clone this repository to e.g. `~/devel/lrcaller` and then:
 
 ```sh
+mkdir -p ~/devel/lrcaller-build/release
+cd ~/devel/lrcaller-build/release
+cmake -DCMAKE_CXX_COMPILER=/path/to/g++ -DCMAKE_BUILD_TYPE=Release ../../LRcaller
 make
 ```
 
-## Usage
+In deCODE network on RHEL7, use the following paths:
+
+  * `cmake3` instead of `cmake` (`sudo yum install cmake3` to install it)
+  * Add `-DCMAKE_CXX_COMPILER=/nfs/odinn/users/hannesha/bin/g++-10`
+
+# Usage:
+
 ```
     LRcaller [OPTIONS] "BAMFILE" "VCF_FILE_IN" "VCF_OUT_FILE"
 
@@ -30,9 +33,9 @@ DESCRIPTION
     Genotypes variants using long reads in bam file/file of bam files
 
 REQUIRED ARGUMENTS
-    BAMFILE_bam_file/file_of_bam_files STRING
-    VCF_FILE_IN_-_input_vcf_file STRING
-    VCF_FILE_OUT_-_genotyped_vcf_file STRING
+    bam_file/file_of_files STRING
+    vcf_in STRING
+    vcf_out STRING
 
 OPTIONS
     -h, --help
@@ -43,19 +46,17 @@ OPTIONS
     -fa, --fa STRING
           Fasta file Default: genome.fa.
     -b2, --bam2 STRING
-          Second bam file/file of bam files, use if you want to use multiple basecallings/mappings for the same reads
-          Default: .
+          Second bam file/file of bam files Default: .
     -a, --aligner STRING
-          Aligner used bwa/minimap/seqan (default seqan). (Using bwa or minimap requires programs to be in path) One
-          of bwa, minimap, and seqan. Default: seqan.
+          Aligner used bwa/minimap/seqan (default seqan). One of bwa, minimap, and seqan. Default: seqan.
     -gtm, --genotyper STRING
           Genotyper used joint/ad/va/multi (default joint). One of joint, ad, va, and multi. Default: joint.
     -faA, --faA STRING
-          Fasta file alt, used when VCF file refers to an alternate fasta file
+          Fasta file alt, used when VCF file refers to an alternate fasta file Default: None.
+    -c, --cropread
+          Use only the substring of the read within window_size from the variant (recommended)
     -v, --verbose
           Verbose output
-    -rb, --right_breakpoint
-          Genotype right breakpoint, left breakpoint genotyped by default
     -ora, --get_ref_alt
           Output ref and alt allele, for debugging purposes
     -A, --match INTEGER
@@ -86,4 +87,5 @@ OPTIONS
           Threshold for fraction of del/ins bp to be considered alt Default: 0.5.
     -lsf, --logScaleFactor DOUBLE
           Log scale factor for comparing alignment scores Default: 2.
+
 ```
