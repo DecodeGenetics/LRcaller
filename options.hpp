@@ -63,7 +63,7 @@ struct LRCOptions
     std::filesystem::path cacheDir;               // where to store cache
 };
 
-int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
+inline int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
 {
     seqan::ArgumentParser parser("LRcaller");
     addUsageLine(parser, "[\\fIOPTIONS\\fP]  \"\\fIBAMFILE\\fP\"  \"\\fIVCF_FILE_IN\\fP\" \"\\fIVCF_FILE_OUT\\fP\" ");
@@ -127,6 +127,8 @@ int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
       parser,
       seqan::ArgParseOption("", "mask", "Reduce stretches of the same base to a single base before alignment."));
 
+    seqan::hideOption(parser, "mask"); // THIS IS CURRENTLY NOT EXPOSED TO THE USER
+
     setDefaultValue(parser, "A", O.match);
     setDefaultValue(parser, "B", O.mismatch);
     setDefaultValue(parser, "O", O.gapOpen);
@@ -179,6 +181,14 @@ int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
                                     seqan::ArgParseArgument::INTEGER,
                                     "INT"));
     setDefaultValue(parser, "mp", O.minPresent);
+
+    addOption(parser,
+              seqan::ArgParseOption("",
+                                    "max-alignments",
+                                    "Maximum alignments per variant to consider",
+                                    seqan::ArgParseArgument::INTEGER,
+                                    "INT"));
+    setDefaultValue(parser, "max-alignments", O.maxBARcount);
 
     addOption(parser,
               seqan::ArgParseOption("rt",
@@ -247,6 +257,9 @@ int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
 
     if (isSet(parser, "min_present"))
         getOptionValue(O.minPresent, parser, "min_present");
+
+    if (isSet(parser, "max-alignments"))
+        getOptionValue(O.maxBARcount, parser, "max-alignments");
 
     if (isSet(parser, "ref_thresh_fraction"))
         getOptionValue(O.refThreshFraction, parser, "ref_thresh_fraction");
