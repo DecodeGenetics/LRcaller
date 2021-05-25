@@ -25,12 +25,12 @@ struct LRCOptions
     std::string       vcfOutFile;
     seqan::CharString genotypingModel = "multi";
 
-    bool    dynamicWSize            = false;
-    size_t  wSize                   = 500; // Window Size,
-    size_t  maxBARcount             = 200; // maximum number of reads to use for a variant
-    bool    verbose                 = false;
-    bool    genotypeRightBreakpoint = false;
-    double  logScaleFactor          = 2.0;
+    bool   dynamicWSize            = false;
+    size_t wSize                   = 500; // Window Size,
+    size_t maxBARcount             = 200; // maximum number of reads to use for a variant
+    bool   verbose                 = false;
+    bool   genotypeRightBreakpoint = false;
+    double logScaleFactor          = 2.0;
 
     int match     = 1;
     int mismatch  = -1;
@@ -118,14 +118,14 @@ int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
     addOption(parser,
               seqan::ArgParseOption("w", "window_size", "Window size", seqan::ArgParseArgument::INTEGER, "INT"));
 
-    addOption(parser,
-              seqan::ArgParseOption("", "dyn-w-size", "Dynamically adjust window size to allele length."));
+    addOption(parser, seqan::ArgParseOption("", "dyn-w-size", "Dynamically adjust window size to allele length."));
 
     addOption(parser,
               seqan::ArgParseOption("", "cacheDataInTmp", "Copy reads and index to (local) tmp directory before run."));
 
-    addOption(parser,
-              seqan::ArgParseOption("", "mask", "Reduce stretches of the same base to a single base before alignment."));
+    addOption(
+      parser,
+      seqan::ArgParseOption("", "mask", "Reduce stretches of the same base to a single base before alignment."));
 
     setDefaultValue(parser, "A", O.match);
     setDefaultValue(parser, "B", O.mismatch);

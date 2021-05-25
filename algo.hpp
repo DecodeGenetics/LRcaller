@@ -22,8 +22,8 @@
 #include <seqan/stream.h>
 #include <seqan/vcf_io.h>
 
-#include "options.hpp"
 #include "misc.hpp"
+#include "options.hpp"
 
 // Sequence, alignment, and alignment row.
 typedef seqan::String<seqan::Dna5>                TSequence;
@@ -111,9 +111,9 @@ public:
     // Returns an index to the most likely allele, if one exists
     size_t alignmentPreference(size_t const wSizeActual, LRCOptions const & O, std::vector<double> & pref) const
     {
-        int    maxScore   = alignS[0];
-        size_t maxI       = 0;
-        int minAlignScore = static_cast<double>(wSizeActual) * 1.2;
+        int    maxScore      = alignS[0];
+        size_t maxI          = 0;
+        int    minAlignScore = static_cast<double>(wSizeActual) * 1.2;
 
         for (size_t i = 0; i < nAlleles; i++)
         {
@@ -467,7 +467,11 @@ inline void getLocRefAlt(seqan::VcfRecord const &  variant,
     {
         if (!O.genotypeRightBreakpoint)
         {
-            readRegion(altSeqs[i], faiI, idx, beginPos - wSizeActual, beginPos); // beginPos is included in the alt sequence
+            readRegion(altSeqs[i],
+                       faiI,
+                       idx,
+                       beginPos - wSizeActual,
+                       beginPos); // beginPos is included in the alt sequence
             TSequence post;
             if (altLens[i] < (size_t)wSizeActual)
             {
@@ -515,16 +519,16 @@ inline void cropSeq(seqan::BamAlignmentRecord const & bar,
                     LRCOptions const &                O,
                     TSequence &                       croppedSeq)
 {
-    auto & cigarString    = bar.cigar;
-    ssize_t alignPos      = bar.beginPos;
-    ssize_t readPos       = 0;
-    ssize_t lReadPos      = 0;
-    size_t cigarI         = 0;
-    char   cigarOperation = cigarString[cigarI].operation;
+    auto &  cigarString    = bar.cigar;
+    ssize_t alignPos       = bar.beginPos;
+    ssize_t readPos        = 0;
+    ssize_t lReadPos       = 0;
+    size_t  cigarI         = 0;
+    char    cigarOperation = cigarString[cigarI].operation;
 
     // Searches for the first position overlapping our window (right insert) or last position overlapping window (left
     // insert)
-    //TODO the following can underflow :o
+    // TODO the following can underflow :o
     ssize_t searchPos = var.beginPos - wSizeActual; // Want to change the search intervals for TRs
     if (O.genotypeRightBreakpoint)
         searchPos = var.beginPos + length(var.ref) + wSizeActual;
@@ -546,7 +550,7 @@ inline void cropSeq(seqan::BamAlignmentRecord const & bar,
                 alignPos += cigarString[cigarI].count;
                 [[fallthrough]];
             case 'S':
-            case 'H': //TODO THIS IS PROBABLY WRONG
+            case 'H': // TODO THIS IS PROBABLY WRONG
             case 'I':
                 readPos += cigarString[cigarI].count;
                 break;
@@ -625,7 +629,7 @@ inline TSeq mask(TSeq const & in)
     seqan::appendValue(ret, in[0]);
 
     for (size_t i = 1; i < seqan::length(in); ++i)
-        if (in[i] != in[i-1])
+        if (in[i] != in[i - 1])
             seqan::appendValue(ret, in[i]);
 
     return ret;
@@ -696,7 +700,7 @@ inline void LRprocessReads(seqan::VcfRecord const &                             
         {
             if (O.mask)
             {
-                auto al = mask(altSeqs[iAlt]);
+                auto al              = mask(altSeqs[iAlt]);
                 vai.alignS[iAlt + 1] = (int)localAlignmentScore(al, seqToAlign, scoringScheme);
             }
             else
@@ -1036,8 +1040,7 @@ inline void parseReads(std::vector<seqan::BamAlignmentRecord> const &   bars,
         std::cerr << "Exiting readBamRegion " << '\n';
 }
 
-inline size_t getWSizeActual(std::span<seqan::VcfRecord> vcfRecords,
-                             LRCOptions const &          O)
+inline size_t getWSizeActual(std::span<seqan::VcfRecord> vcfRecords, LRCOptions const & O)
 {
     if (O.dynamicWSize)
     {
@@ -1049,7 +1052,7 @@ inline size_t getWSizeActual(std::span<seqan::VcfRecord> vcfRecords,
                 if (i == seqan::length(var.alt) || var.alt[i] == ',')
                 {
                     maxAlleleLength = std::max(maxAlleleLength, len - 1);
-                    len = 0;
+                    len             = 0;
                 }
             }
         }
@@ -1092,7 +1095,7 @@ inline void processChunk(std::vector<seqan::BamFileIn> &            bamFiles,
     }
 
     genome_begin = wSizeActual >= genome_begin ? 1 : genome_begin - wSizeActual;
-    genome_end   += wSizeActual;
+    genome_end += wSizeActual;
 
     /* read BAM files for this chunk */
     for (size_t i = 0; i < bamFiles.size(); ++i)
@@ -1101,7 +1104,7 @@ inline void processChunk(std::vector<seqan::BamFileIn> &            bamFiles,
     if (bamFiles.size() > 1)
     {
         std::ranges::sort(bars,
-                          [] (seqan::BamAlignmentRecord const & lhs, seqan::BamAlignmentRecord const & rhs)
+                          [](seqan::BamAlignmentRecord const & lhs, seqan::BamAlignmentRecord const & rhs)
                           { return lhs.beginPos < rhs.beginPos; });
     }
 
@@ -1142,8 +1145,8 @@ inline void processChunk(std::vector<seqan::BamFileIn> &            bamFiles,
         std::vector<varAlignInfo>                      alignInfos;
         parseReads(bars, var, overlappingBars, alignInfos, wSizeActual, O);
 
-//         for (seqan::BamAlignmentRecord const * bar : overlappingBars)
-//                 std::cerr << bar->qName << '\n';
+        //         for (seqan::BamAlignmentRecord const * bar : overlappingBars)
+        //                 std::cerr << bar->qName << '\n';
 
         LRprocessReads(var, chrom, faIndex, overlappingBars, alignInfos, wSizeActual, O);
 

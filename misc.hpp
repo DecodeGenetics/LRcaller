@@ -13,23 +13,22 @@ std::string to_str(in_t && in)
 }
 
 template <typename in_t>
-    requires std::constructible_from<std::string, in_t>
-std::string to_str(in_t && in)
+std::string to_str(in_t && in) requires std::constructible_from<std::string, in_t>
 {
     return std::string(std::forward<in_t>(in));
 }
 
-std::string to_str(char in)
+inline std::string to_str(char in)
 {
     return std::string{in};
 }
 
-std::string to_str(std::string in)
+inline std::string to_str(std::string in)
 {
     return in;
 }
 
-std::string to_str(seqan::CharString && in)
+inline std::string to_str(seqan::CharString && in)
 {
     return seqan::toCString(in);
 }
