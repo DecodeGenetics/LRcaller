@@ -5,6 +5,7 @@ on:
     branches:
       # Push events to branches matching refs/heads/master
       - 'master'
+      - 'devel'
   pull_request:
 
 env:
