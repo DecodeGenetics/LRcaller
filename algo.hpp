@@ -787,6 +787,7 @@ inline void parseBamFileName(std::filesystem::path const &              bfN,
 
     for (size_t i = 0; i < paths.size(); ++i)
         initializeBam(paths[i], bamIndexV[i], bamStreamV[i]);
+
 }
 
 // Examines a seqan::BamAlignmentRecord for evidence of supporting a variant and writes evidence into varAlignInfo
@@ -1099,7 +1100,13 @@ inline void processChunk(std::vector<seqan::BamFileIn> &            bamFiles,
 
     /* read BAM files for this chunk */
     for (size_t i = 0; i < bamFiles.size(); ++i)
-        viewRecords(bars, bamFiles[i], bamIndexes[i], vcfRecords.front().rID, genome_begin, genome_end);
+    {
+        size_t bamRID = 0;
+        if (seqan::getIdByName(bamRID, seqan::contigNamesCache(seqan::context(bamFiles[i])), chrom))
+            viewRecords(bars, bamFiles[i], bamIndexes[i], bamRID, genome_begin, genome_end);
+
+        // else: BAM files that have no reads spanning the desired chromosome are quietly ignored
+    }
 
     if (bamFiles.size() > 1)
     {
