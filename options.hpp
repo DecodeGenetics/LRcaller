@@ -31,7 +31,7 @@ struct LRCOptions
     bool   verbose                 = false;
     bool   genotypeRightBreakpoint = false;
     double logScaleFactor          = 2.0;
-    size_t bandedAlignmentPercent  = 100;
+    size_t bandedAlignmentPercent  = 40;
 
     int match     = 1;
     int mismatch  = -1;
