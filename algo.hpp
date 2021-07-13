@@ -673,6 +673,7 @@ inline void LRprocessReads(seqan::VcfRecord const &                             
         refSeq = mask(refSeq);
 
     seqan::Score<int, seqan::Simple> scoringScheme(O.match, O.mismatch, O.gapExtend, O.gapOpen);
+    double                           band_fac = std::min<double>(O.bandedAlignmentPercent, 100.0) / 100.0;
 
     TSequence seqToAlign;
     for (size_t i = 0; i < overlappingBars.size(); ++i)
@@ -694,18 +695,24 @@ inline void LRprocessReads(seqan::VcfRecord const &                             
         if (O.mask)
             seqToAlign = mask(seqToAlign);
 
-        vai.alignS[0] = (int)localAlignmentScore(refSeq, seqToAlign, scoringScheme);
+        int lband = static_cast<double>(seqan::length(refSeq)) * band_fac;
+        int rband = static_cast<double>(seqan::length(seqToAlign)) * band_fac;
+
+        vai.alignS[0] = (int)localAlignmentScore(refSeq, seqToAlign, scoringScheme, -lband, +rband);
 
         for (size_t iAlt = 0; iAlt < nAlts; iAlt++)
         {
             if (O.mask)
             {
                 auto al              = mask(altSeqs[iAlt]);
-                vai.alignS[iAlt + 1] = (int)localAlignmentScore(al, seqToAlign, scoringScheme);
+                lband                = static_cast<double>(seqan::length(al)) * band_fac;
+                vai.alignS[iAlt + 1] = (int)localAlignmentScore(al, seqToAlign, scoringScheme, -lband, +rband);
             }
             else
             {
-                vai.alignS[iAlt + 1] = (int)localAlignmentScore(altSeqs[iAlt], seqToAlign, scoringScheme);
+                lband = static_cast<double>(seqan::length(altSeqs[iAlt])) * band_fac;
+                vai.alignS[iAlt + 1] =
+                  (int)localAlignmentScore(altSeqs[iAlt], seqToAlign, scoringScheme, -lband, +rband);
             }
             if (O.verbose)
                 std::cerr << "Aligned " << b.qName << " " << vai.alignS[0] << " " << vai.alignS[iAlt + 1] << " "
@@ -787,7 +794,6 @@ inline void parseBamFileName(std::filesystem::path const &              bfN,
 
     for (size_t i = 0; i < paths.size(); ++i)
         initializeBam(paths[i], bamIndexV[i], bamStreamV[i]);
-
 }
 
 // Examines a seqan::BamAlignmentRecord for evidence of supporting a variant and writes evidence into varAlignInfo
