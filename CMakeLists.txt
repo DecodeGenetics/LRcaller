@@ -18,8 +18,8 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/submodules/seqan/include/seqan/version.h
     message (    "   This will be preferred over system global headers.")
 endif ()
 
-find_package (ZLIB)
-find_package (OpenMP)
+find_package (ZLIB REQUIRED)
+find_package (OpenMP REQUIRED)
 find_package (SeqAn REQUIRED)
 
 include_directories (${SEQAN_INCLUDE_DIRS})
