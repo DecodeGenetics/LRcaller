@@ -13,6 +13,7 @@
 #include <vector>
 
 #include <seqan/align.h>
+#include <seqan/align_parallel.h>
 #include <seqan/arg_parse.h>
 #include <seqan/bam_io.h>
 #include <seqan/basic.h>
@@ -29,7 +30,8 @@
 typedef seqan::String<seqan::Dna5>                TSequence;
 typedef seqan::Align<TSequence, seqan::ArrayGaps> TAlign;
 typedef seqan::Row<TAlign>::Type                  TRow;
-using ssize_t = std::make_signed_t<size_t>;
+using ssize_t   = std::make_signed_t<size_t>;
+using TSeqInfix = seqan::Segment<TSequence const, seqan::InfixSegment>;
 
 #define LL_THRESHOLD -25.5
 #define LG10         3.322
@@ -652,7 +654,7 @@ inline void LRprocessReads(seqan::VcfRecord const &                             
     seqan::StringSet<seqan::CharString> altSet;
     strSplit(altSet, variant.alt, seqan::EqualsChar<','>());
 
-    size_t nAlts = length(altSet);
+    size_t const nAlts = length(altSet);
     altSeqs.resize(nAlts);
     if (O.verbose)
         std::cerr << "nAlts " << nAlts << '\n';
@@ -675,49 +677,39 @@ inline void LRprocessReads(seqan::VcfRecord const &                             
     seqan::Score<int, seqan::Simple> scoringScheme(O.match, O.mismatch, O.gapExtend, O.gapOpen);
     double                           band_fac = std::min<double>(O.bandedAlignmentPercent, 100.0) / 100.0;
 
+    std::vector<TSeqInfix> seqsV;
+    seqsV.resize(nAlts + 1);
+    seqsV[0] = infix(refSeq, 0, seqan::length(refSeq));
+    for (size_t j = 0; j < nAlts; ++j)
+        seqsV[j + 1] = infix(altSeqs[j], 0, seqan::length(altSeqs[j]));
+
+    int32_t vBand = static_cast<double>(seqan::length(refSeq)) * band_fac;
+
+    std::vector<TSeqInfix> seqsH;
+    seqsH.resize(nAlts + 1);
     TSequence seqToAlign;
+
+    seqan::ExecutionPolicy<seqan::Serial, seqan::Vectorial> execP;
+
     for (size_t i = 0; i < overlappingBars.size(); ++i)
     {
         seqan::BamAlignmentRecord const & b   = *overlappingBars[i];
         varAlignInfo &                    vai = vais[i];
 
-        clear(seqToAlign);
-
+        seqan::clear(seqToAlign);
         if (O.cropRead)
-        {
             cropSeq(b, variant, wSizeActual, O, seqToAlign);
-        }
         else
-        {
-            seqToAlign = b.seq; // TODO: we shouldn't copy here
-        }
+            seqToAlign = b.seq; // converts IUPAC to Dna5
 
-        if (O.mask)
-            seqToAlign = mask(seqToAlign);
+        for (auto & seqH : seqsH)
+            seqH = infix(seqToAlign, 0, seqan::length(seqToAlign));
 
-        int lband = static_cast<double>(seqan::length(refSeq)) * band_fac;
-        int rband = static_cast<double>(seqan::length(seqToAlign)) * band_fac;
+        int32_t hBand  = static_cast<double>(seqan::length(seqToAlign)) * band_fac;
+        auto    scores = seqan::localAlignmentScore(execP, seqsH, seqsV, scoringScheme, -vBand, +hBand);
 
-        vai.alignS[0] = (int)localAlignmentScore(refSeq, seqToAlign, scoringScheme, -lband, +rband);
-
-        for (size_t iAlt = 0; iAlt < nAlts; iAlt++)
-        {
-            if (O.mask)
-            {
-                auto al              = mask(altSeqs[iAlt]);
-                lband                = static_cast<double>(seqan::length(al)) * band_fac;
-                vai.alignS[iAlt + 1] = (int)localAlignmentScore(al, seqToAlign, scoringScheme, -lband, +rband);
-            }
-            else
-            {
-                lband = static_cast<double>(seqan::length(altSeqs[iAlt])) * band_fac;
-                vai.alignS[iAlt + 1] =
-                  (int)localAlignmentScore(altSeqs[iAlt], seqToAlign, scoringScheme, -lband, +rband);
-            }
-            if (O.verbose)
-                std::cerr << "Aligned " << b.qName << " " << vai.alignS[0] << " " << vai.alignS[iAlt + 1] << " "
-                          << altSeqs[iAlt] << '\n';
-        }
+        for (size_t j = 0; j < seqan::length(vai.alignS); ++j)
+            vai.alignS[j] = scores[j];
     }
 }
 

@@ -23,15 +23,12 @@ And then build it:
 ```sh
 mkdir -p ~/devel/lrcaller-build/release
 cd ~/devel/lrcaller-build/release
-cmake -DCMAKE_BUILD_TYPE=Release ../../LRcaller
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-march=native" ../../LRcaller
 make
 make test # optional
 ```
 
-In deCODE network on RHEL7, use the following paths:
-
-  * `cmake3` instead of `cmake` (`sudo yum install cmake3` to install it)
-  * Add `-DCMAKE_CXX_COMPILER=/nfs/odinn/users/hannesha/bin/g++-10`
+The `-DCMAKE_CXX_FLAGS="-march=native"` is not required but highly recommended. Alternatively, you may specify `-DCMAKE_CXX_FLAGS="-march=x86-64-v3"` to produce a more portable binary (only works on GCC≥10 and Clang≥12).
 
 ## Usage
 
