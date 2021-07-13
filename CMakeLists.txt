@@ -44,11 +44,11 @@ enable_testing()
 ## Add clang-format
 find_program(CLANG_FORMAT "clang-format-12")
 
-if (CLANG_FORMAT STREQUAL "")
+if (CLANG_FORMAT STREQUAL "CLANG_FORMAT-NOTFOUND")
     find_program(CLANG_FORMAT "clang-format")
 endif()
 
-if (NOT CLANG_FORMAT STREQUAL "")
+if (NOT CLANG_FORMAT STREQUAL "CLANG_FORMAT-NOTFOUND")
     add_custom_target (check_format "${CLANG_FORMAT}" "-style=file" "-n" "-Werror" "${CMAKE_CURRENT_SOURCE_DIR}/*.?pp"
-                       COMMENT "Checking all files format with clang-format.")
+                       COMMENT "Checking all files' format with clang-format.")
 endif()
