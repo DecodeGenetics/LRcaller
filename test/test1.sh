@@ -111,7 +111,7 @@ for PN in $PNS; do
         echo "-------"
         echo "$CONTROL"
         echo "DIFF:"
-        diff -u "${MYTMP}/${PN}.vcf" "${DATADIR}/CONTROL/${PN}.vcf"
+        diff -u "${DATADIR}/CONTROL/${PN}.vcf" "${MYTMP}/${PN}.vcf"
         FAIL=1
     fi
 done

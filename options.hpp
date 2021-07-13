@@ -31,6 +31,7 @@ struct LRCOptions
     bool   verbose                 = false;
     bool   genotypeRightBreakpoint = false;
     double logScaleFactor          = 2.0;
+    size_t bandedAlignmentPercent  = 100;
 
     int match     = 1;
     int mismatch  = -1;
@@ -221,11 +222,20 @@ inline int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
                                     seqan::ArgParseArgument::DOUBLE,
                                     "DOUBLE"));
 
+    addOption(parser,
+              seqan::ArgParseOption("",
+                                    "band",
+                                    "Percentage of window size to use as band in alignment (100 == no band).",
+                                    seqan::ArgParseArgument::INTEGER,
+                                    "INTEGER"));
+    setDefaultValue(parser, "band", O.bandedAlignmentPercent);
+
     setDefaultValue(parser, "fa", O.faFile);
     setDefaultValue(parser, "b2", O.bam2);
     setValidValues(parser, "genotyper", "joint ad va multi");
     setDefaultValue(parser, "genotyper", "joint");
     setDefaultValue(parser, "logScaleFactor", O.logScaleFactor);
+
     seqan::ArgumentParser::ParseResult res = parse(parser, argc, argv);
     // Only extract  options if the program will continue after parseCommandLine()
     if (res != seqan::ArgumentParser::PARSE_OK)
@@ -281,6 +291,8 @@ inline int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
         getOptionValue(O.wSize, parser, "window_size");
     if (isSet(parser, "bam2"))
         getOptionValue(O.bam2, parser, "bam2");
+    if (isSet(parser, "band"))
+        getOptionValue(O.bandedAlignmentPercent, parser, "band");
 
     seqan::CharString gtModelName;
     if (isSet(parser, "genotyper"))
