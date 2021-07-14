@@ -674,17 +674,21 @@ inline void LRprocessReads(seqan::VcfRecord const &                             
     if (O.mask)
         refSeq = mask(refSeq);
 
-    seqan::Score<int, seqan::Simple> scoringScheme(O.match, O.mismatch, O.gapExtend, O.gapOpen);
-    double                           band_fac = std::min<double>(O.bandedAlignmentPercent, 100.0) / 100.0;
+    seqan::Score<int32_t, seqan::Simple> scoringScheme32(O.match, O.mismatch, O.gapExtend, O.gapOpen);
+    seqan::Score<int16_t, seqan::Simple> scoringScheme16(O.match, O.mismatch, O.gapExtend, O.gapOpen);
 
+    double const band_fac = std::min<double>(O.bandedAlignmentPercent, 100.0) / 100.0;
+
+    // The set of alleles is the same for all alignments
     std::vector<TSeqInfix> seqsV;
     seqsV.resize(nAlts + 1);
     seqsV[0] = infix(refSeq, 0, seqan::length(refSeq));
     for (size_t j = 0; j < nAlts; ++j)
         seqsV[j + 1] = infix(altSeqs[j], 0, seqan::length(altSeqs[j]));
 
-    int32_t vBand = static_cast<double>(seqan::length(refSeq)) * band_fac;
+    int32_t const vBand = static_cast<double>(seqan::length(refSeq)) * band_fac;
 
+    // This is a set that contains the respective read at every position [needs to be same size as other set]
     std::vector<TSeqInfix> seqsH;
     seqsH.resize(nAlts + 1);
     TSequence seqToAlign;
@@ -705,11 +709,23 @@ inline void LRprocessReads(seqan::VcfRecord const &                             
         for (auto & seqH : seqsH)
             seqH = infix(seqToAlign, 0, seqan::length(seqToAlign));
 
-        int32_t hBand  = static_cast<double>(seqan::length(seqToAlign)) * band_fac;
-        auto    scores = seqan::localAlignmentScore(execP, seqsH, seqsV, scoringScheme, -vBand, +hBand);
+        int32_t const hBand = static_cast<double>(seqan::length(seqToAlign)) * band_fac;
 
-        for (size_t j = 0; j < seqan::length(vai.alignS); ++j)
-            vai.alignS[j] = scores[j];
+        if (seqan::length(refSeq) > std::numeric_limits<int16_t>::max() &&
+            seqan::length(seqToAlign) > std::numeric_limits<int16_t>::max())
+        {
+            auto scores = seqan::localAlignmentScore(execP, seqsH, seqsV, scoringScheme32, -vBand, +hBand);
+
+            for (size_t j = 0; j < seqan::length(vai.alignS); ++j)
+                vai.alignS[j] = scores[j];
+        }
+        else // this allows better vectorisation
+        {
+            auto scores = seqan::localAlignmentScore(execP, seqsH, seqsV, scoringScheme16, -vBand, +hBand);
+
+            for (size_t j = 0; j < seqan::length(vai.alignS); ++j)
+                vai.alignS[j] = scores[j];
+        }
     }
 }
 
