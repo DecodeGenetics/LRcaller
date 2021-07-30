@@ -1166,27 +1166,7 @@ inline void processChunk(std::vector<seqan::BamFileIn> &            bamFiles,
         std::vector<varAlignInfo>                      alignInfos;
         parseReads(bars, var, overlappingBars, alignInfos, wSizeActual, O);
 
-        //         for (seqan::BamAlignmentRecord const * bar : overlappingBars)
-        //                 std::cerr << bar->qName << '\n';
-
         LRprocessReads(var, chrom, faIndex, overlappingBars, alignInfos, wSizeActual, O);
-
-        //         if (useBam2)
-        //         {
-        //             for (size_t i = 0; i < bamIndex2Handles[omp_get_thread_num()].size(); i++)
-        //             {
-        //                 std::map<seqan::CharString, seqan::BamAlignmentRecord> bars;
-        //                 readBamRegion(bamIndex2Handles[omp_get_thread_num()][i],
-        //                               bam2Handles[omp_get_thread_num()][i],
-        //                               varChrom,
-        //                               var,
-        //                               O,
-        //                               bars,
-        //
-        //                               vaisR);
-        //                 LRprocessReads(var, vcfIn, faIndexHandles[omp_get_thread_num()], bars, O, vaisR);
-        //             }
-        //         }
 
         if (O.gtModel == genotyping_model::multi)
         {

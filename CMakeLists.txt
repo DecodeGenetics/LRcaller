@@ -2,6 +2,9 @@ cmake_minimum_required (VERSION 3.4)
 
 project (lrcaller CXX)
 
+set (LRCALLER_VERSION "1.0")
+add_definitions(-DLRCALLER_VERSION="${LRCALLER_VERSION}")
+
 #============================================= DEPENDENCIES =================================================
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/submodules/seqan/include/seqan/version.h")

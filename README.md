@@ -1,5 +1,8 @@
 # LRcaller
-Program to estimate genotype structural variants from long read data
+
+Program to estimate genotype structural variants from long read data.
+
+**Please see the [CHANGELOG](./CHANGELOG.md) before updating from v0.2 to a newer version.**
 
 ## Build instructions
 

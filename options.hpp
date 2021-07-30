@@ -67,6 +67,9 @@ struct LRCOptions
 inline int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
 {
     seqan::ArgumentParser parser("LRcaller");
+    setVersion(parser, LRCALLER_VERSION);
+    setDate(parser, __DATE__);
+
     addUsageLine(parser, "[\\fIOPTIONS\\fP]  \"\\fIBAMFILE\\fP\"  \"\\fIVCF_FILE_IN\\fP\" \"\\fIVCF_FILE_OUT\\fP\" ");
     addDescription(parser, "Genotypes variants using long reads\n in bam file/file of bam files ");
 
@@ -83,6 +86,7 @@ inline int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
         "Second bam file/file of bam files, use if you want to use multiple basecallings/mappings for the same reads",
         seqan::ArgParseArgument::STRING,
         "b2"));
+    hideOption(parser, "bam2");
 
     addOption(parser,
               seqan::ArgParseOption("gtm",
@@ -121,8 +125,9 @@ inline int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
 
     addOption(parser, seqan::ArgParseOption("", "dyn-w-size", "Dynamically adjust window size to allele length."));
 
-    addOption(parser,
-              seqan::ArgParseOption("", "cacheDataInTmp", "Copy reads and index to (local) tmp directory before run."));
+    addOption(
+      parser,
+      seqan::ArgParseOption("", "cache-data-in-tmp", "Copy reads and index to (local) tmp directory before run."));
 
     addOption(
       parser,
@@ -134,6 +139,12 @@ inline int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
     setDefaultValue(parser, "B", O.mismatch);
     setDefaultValue(parser, "O", O.gapOpen);
     setDefaultValue(parser, "E", O.gapExtend);
+
+    hideOption(parser, "A");
+    hideOption(parser, "B");
+    hideOption(parser, "O");
+    hideOption(parser, "E");
+
     setDefaultValue(parser, "w", O.wSize);
 
     addOption(
@@ -287,10 +298,15 @@ inline int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
         getOptionValue(O.gapOpen, parser, "gap_open");
     if (isSet(parser, "gap_extend"))
         getOptionValue(O.gapExtend, parser, "gap_extend");
+
+    if (isSet(parser, "mismatch") || isSet(parser, "match") || isSet(parser, "gap_open") || isSet(parser, "gap_extend"))
+        std::cerr << "Setting customs scores is deprecated and will be removed in the future.\n";
+
     if (isSet(parser, "window_size"))
         getOptionValue(O.wSize, parser, "window_size");
     if (isSet(parser, "bam2"))
-        getOptionValue(O.bam2, parser, "bam2");
+        throw std::runtime_error{"Setting -bam2 is no longer supported; instead create a joined filelist."};
+
     if (isSet(parser, "band"))
         getOptionValue(O.bandedAlignmentPercent, parser, "band");
 
@@ -315,7 +331,7 @@ inline int parseLRCArguments(int argc, char const ** argv, LRCOptions & O)
     O.verbose                 = isSet(parser, "verbose");
     O.genotypeRightBreakpoint = isSet(parser, "right_breakpoint");
     O.outputRefAlt            = isSet(parser, "get_ref_alt");
-    O.cacheDataInTmp          = isSet(parser, "cacheDataInTmp");
+    O.cacheDataInTmp          = isSet(parser, "cache-data-in-tmp");
     O.dynamicWSize            = isSet(parser, "dyn-w-size");
     O.mask                    = isSet(parser, "mask");
     // get options
