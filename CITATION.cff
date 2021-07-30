@@ -1,0 +1,19 @@
+cff-version: 1.1.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Halldórsson
+    given-names: Bjarni
+    orcid: https://orcid.org/0000-0003-0756-0767
+  - family-names: Beyter
+    given-names: Doruk
+    orcid: https://orcid.org/0000-0002-3644-5760
+  - family-names: Eggertsson
+    given-names: Hannes
+    orcid: https://orcid.org/0000-0002-1674-9978
+  - family-names: Hauswedell
+    given-names: Hannes
+    orcid: https://orcid.org/0000-0002-3744-1956
+title: "LRcaller"
+version: 1.0
+doi: 10.1038/s41588-021-00865-4
+date-released: 2021-07-28
