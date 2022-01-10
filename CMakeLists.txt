@@ -54,4 +54,6 @@ endif()
 if (NOT CLANG_FORMAT STREQUAL "CLANG_FORMAT-NOTFOUND")
     add_custom_target (check_format "${CLANG_FORMAT}" "-style=file" "-n" "-Werror" "${CMAKE_CURRENT_SOURCE_DIR}/*.?pp"
                        COMMENT "Checking all files' format with clang-format.")
+    add_custom_target (do_format "${CLANG_FORMAT}" "-style=file" "-i" "${CMAKE_CURRENT_SOURCE_DIR}/*.?pp"
+                       COMMENT "Enforce all files' format with clang-format.")
 endif()
