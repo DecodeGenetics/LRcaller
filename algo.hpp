@@ -548,13 +548,16 @@ inline void cropSeq(seqan::BamAlignmentRecord const & bar,
             case 'D':
                 alignPos += cigarString[cigarI].count;
                 break;
+            case '=':
+            case 'X':
             case 'M':
                 alignPos += cigarString[cigarI].count;
                 [[fallthrough]];
             case 'S':
-            case 'H': // TODO THIS IS PROBABLY WRONG
             case 'I':
                 readPos += cigarString[cigarI].count;
+                break;
+            case 'H': // this is untested
                 break;
             default:
                 std::cerr << "WARNING: cigar string case not accounted for \n";
@@ -904,6 +907,8 @@ inline void examineBamAlignment(seqan::BamAlignmentRecord const & bar,
                 if (cigarString[cigarI].count >= O.minDelIns)
                     vai.nD += cigarString[cigarI].count;
                 [[fallthrough]];
+            case '=':
+            case 'X':
             case 'M':
                 alignPos += cigarString[cigarI].count;
                 break;
@@ -912,7 +917,6 @@ inline void examineBamAlignment(seqan::BamAlignmentRecord const & bar,
                     vai.nI += cigarString[cigarI].count;
                 break;
             case 'S':
-            case 'H':
                 if (cigarString[cigarI].count > O.maxSoftClipped)
                 {
                     if (!O.genotypeRightBreakpoint)
@@ -926,6 +930,8 @@ inline void examineBamAlignment(seqan::BamAlignmentRecord const & bar,
                             vai.softClipped = true;
                     }
                 }
+                break;
+            case 'H': // this is untested
                 break;
             default:
                 std::cerr << "WARNING: cigar string case not accounted for \n";
