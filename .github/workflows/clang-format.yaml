@@ -35,7 +35,9 @@ jobs:
       - name: Add package source
         run: |
           echo 'APT::Acquire::Retries "5";' | sudo tee -a /etc/apt/apt.conf.d/80-retries > /dev/null
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo add-apt-repository --no-update --yes "deb http://apt.llvm.org/focal/ llvm-toolchain-focal main"
+          sudo add-apt-repository --no-update --yes "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
           sudo apt-get update
 
       - name: Install CMake
